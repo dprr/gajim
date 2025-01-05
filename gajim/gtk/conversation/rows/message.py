@@ -165,21 +165,21 @@ class MessageRow(BaseRow):
         self._message_icons = MessageIcons()
         self._meta_box.append(self._message_icons)
 
+        if message.reply is not None:
+            referenced_message = message.get_referenced_message()
+            if referenced_message is None:
+                self._ref_message_widget = ReferencedMessageNotFoundWidget()
+            else:
+                self._ref_message_widget = ReferencedMessageWidget(
+                    self._contact, referenced_message
+                )
+
         if app.preview_manager.is_previewable(self.text, message.oob):
             self._message_widget = PreviewWidget(self._contact.account)
             app.preview_manager.create_preview(
                 self.text, self._message_widget, self._is_outgoing, self._muc_context
             )
         else:
-            if message.reply is not None:
-                referenced_message = message.get_referenced_message()
-                if referenced_message is None:
-                    self._ref_message_widget = ReferencedMessageNotFoundWidget()
-                else:
-                    self._ref_message_widget = ReferencedMessageWidget(
-                        self._contact, referenced_message
-                    )
-
             self._message_widget = MessageWidget(self._contact.account)
             self._message_widget.add_with_styling(self.text, nickname=self.name)
             if self._contact.is_groupchat and not self._is_outgoing:
